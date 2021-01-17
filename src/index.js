@@ -3,6 +3,10 @@ const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
 const Filter = require("bad-words");
+const {
+  generateMessage,
+  generateLocationMessage
+} = require("./utils/messages");
 
 const app = express();
 /**
@@ -24,8 +28,8 @@ app.use(express.static(publicDirectory));
 io.on("connection", socket => {
   console.log("New web socket connection");
 
-  socket.emit("message", "Welcome!"); // Only the client just joined will get the message
-  socket.broadcast.emit("message", "A new user has joined"); // message will be sent to all clients excepts the client just joined
+  socket.emit("message", generateMessage("Welcome!")); // Only the client just joined will get the message
+  socket.broadcast.emit("message", generateMessage("A new user has joined")); // message will be sent to all clients excepts the client just joined
 
   socket.on("sendMessage", (msg, cb) => {
     const filter = new Filter();
@@ -33,21 +37,23 @@ io.on("connection", socket => {
 
     if (filter.isProfane(msg)) return cb("Profanity is not allowed!");
 
-    io.emit("message", msg); // All clients will get the message
+    io.emit("message", generateMessage(msg)); // All clients will get the message
     cb(); // This will send the acknowledgement to the client that message has been received
   });
 
   socket.on("sendLocation", ({ latitude, longitude }, cb) => {
     io.emit(
       "locationMessage",
-      `https://google.com/maps?q=${latitude},${longitude}`
+      generateLocationMessage(
+        `https://google.com/maps?q=${latitude},${longitude}`
+      )
     );
     cb();
   });
 
   // run when a given client disconnects - the message will be sent to all other clients than the one already disconnected
   socket.on("disconnect", () => {
-    io.emit("message", "A user has left!");
+    io.emit("message", generateMessage("A user has left!"));
   });
 });
 
