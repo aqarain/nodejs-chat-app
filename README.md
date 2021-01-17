@@ -1,6 +1,6 @@
 # NodeJS Chat App
 
-## Work in Progress - To be completed
+## README yet to be updated
 
 This project is part of my self-learning
 
