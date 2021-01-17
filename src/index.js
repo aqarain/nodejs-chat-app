@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
+const Filter = require("bad-words");
 
 const app = express();
 /**
@@ -26,12 +27,19 @@ io.on("connection", socket => {
   socket.emit("message", "Welcome!"); // Only the client just joined will get the message
   socket.broadcast.emit("message", "A new user has joined"); // message will be sent to all clients excepts the client just joined
 
-  socket.on("sendMessage", msg => {
+  socket.on("sendMessage", (msg, cb) => {
+    const filter = new Filter();
+    console.log(msg);
+
+    if (filter.isProfane(msg)) return cb("Profanity is not allowed!");
+
     io.emit("message", msg); // All clients will get the message
+    cb(); // This will send the acknowledgement to the client that message has been received
   });
 
-  socket.on("sendLocation", ({ latitude, longitude }) => {
+  socket.on("sendLocation", ({ latitude, longitude }, cb) => {
     io.emit("message", `https://google.com/maps?q=${latitude},${longitude}`);
+    cb();
   });
 
   // run when a given client disconnects - the message will be sent to all other clients than the one already disconnected
