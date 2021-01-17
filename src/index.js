@@ -30,6 +30,10 @@ io.on("connection", socket => {
     io.emit("message", msg); // All clients will get the message
   });
 
+  socket.on("sendLocation", ({ latitude, longitude }) => {
+    io.emit("message", `https://google.com/maps?q=${latitude},${longitude}`);
+  });
+
   // run when a given client disconnects - the message will be sent to all other clients than the one already disconnected
   socket.on("disconnect", () => {
     io.emit("message", "A user has left!");
