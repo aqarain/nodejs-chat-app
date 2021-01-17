@@ -23,10 +23,16 @@ app.use(express.static(publicDirectory));
 io.on("connection", socket => {
   console.log("New web socket connection");
 
-  socket.emit("message", "Welcome!"); // Only the client performed operation will get the message
+  socket.emit("message", "Welcome!"); // Only the client just joined will get the message
+  socket.broadcast.emit("message", "A new user has joined"); // message will be sent to all clients excepts the client just joined
 
   socket.on("sendMessage", msg => {
     io.emit("message", msg); // All clients will get the message
+  });
+
+  // run when a given client disconnects - the message will be sent to all other clients than the one already disconnected
+  socket.on("disconnect", () => {
+    io.emit("message", "A user has left!");
   });
 });
 
