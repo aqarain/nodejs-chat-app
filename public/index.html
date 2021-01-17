@@ -3,40 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Chat App</title>
+    <link rel="icon" href="/img/favicon.png" />
+    <link rel="stylesheet" href="/css/styles.min.css" />
   </head>
   <body>
-    Chat App
-
-    <div id="messages"></div>
-
-    <form id="message-form">
-      <input name="message" type="text" placeholder="Message" />
-      <button>Send</button>
-    </form>
-
-    <button id="send-location">Send Location</button>
-
-    <script id="message-template" type="text/html">
-      <div>
-        <p>{{createdAt}} - {{message}}</p>
+    <div class="centered-form">
+      <div class="centered-form__box">
+        <h1>Join</h1>
+        <form action="/chat.html">
+          <label>Display name</label>
+          <input
+            type="text"
+            name="username"
+            placeholder="Display name"
+            required
+          />
+          <label>Room</label>
+          <input type="text" name="room" placeholder="Room" required />
+          <button>Join</button>
+        </form>
       </div>
-    </script>
-
-    <script id="location-message-template" type="text/html">
-      <div>
-        <p>
-          {{createdAt}} -
-          <a href="{{url}}" target="_blank"> My current location </a>
-        </p>
-      </div>
-    </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
-    <!-- This is client side version of the socket.io library and due to this import, chat.js has access to some stuff which otherwise it would not have -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/chat.js"></script>
+    </div>
   </body>
 </html>

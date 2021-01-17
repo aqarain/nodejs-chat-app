@@ -7,6 +7,12 @@ const {
   generateMessage,
   generateLocationMessage
 } = require("./utils/messages");
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom
+} = require("./utils/users");
 
 const app = express();
 /**
@@ -22,29 +28,50 @@ const publicDirectory = path.join(__dirname, "../public");
 
 app.use(express.static(publicDirectory));
 
-// let count = 0;
-
 // This is going to fire, we socket.io server gets a new connection
 io.on("connection", socket => {
   console.log("New web socket connection");
 
-  socket.emit("message", generateMessage("Welcome!")); // Only the client just joined will get the message
-  socket.broadcast.emit("message", generateMessage("A new user has joined")); // message will be sent to all clients excepts the client just joined
+  socket.on("join", (options, cb) => {
+    const { error, user } = addUser({ id: socket.id, ...options });
+
+    if (error) return cb(error);
+
+    socket.join(user.room);
+
+    socket.emit("message", generateMessage("Admin", "Welcome!")); // Only the client just joined will get the message
+    socket.broadcast
+      .to(user.room)
+      .emit(
+        "message",
+        generateMessage("Admin", `${user.username} has joined!`)
+      );
+
+    io.to(user.room).emit("roomData", {
+      room: user.room,
+      users: getUsersInRoom(user.room)
+    });
+
+    cb();
+  });
 
   socket.on("sendMessage", (msg, cb) => {
+    const user = getUser(socket.id);
     const filter = new Filter();
     console.log(msg);
 
     if (filter.isProfane(msg)) return cb("Profanity is not allowed!");
 
-    io.emit("message", generateMessage(msg)); // All clients will get the message
+    io.to(user.room).emit("message", generateMessage(user.username, msg)); // All clients will get the message
     cb(); // This will send the acknowledgement to the client that message has been received
   });
 
   socket.on("sendLocation", ({ latitude, longitude }, cb) => {
-    io.emit(
+    const user = getUser(socket.id);
+    io.to(user.room).emit(
       "locationMessage",
       generateLocationMessage(
+        user.username,
         `https://google.com/maps?q=${latitude},${longitude}`
       )
     );
@@ -53,7 +80,17 @@ io.on("connection", socket => {
 
   // run when a given client disconnects - the message will be sent to all other clients than the one already disconnected
   socket.on("disconnect", () => {
-    io.emit("message", generateMessage("A user has left!"));
+    const user = removeUser(socket.id);
+    if (user) {
+      io.to(user.room).emit(
+        "message",
+        generateMessage("Admin", `${user.username} has left!`)
+      );
+      io.to(user.room).emit("roomData", {
+        room: user.room,
+        users: getUsersInRoom(user.room)
+      });
+    }
   });
 });
 
