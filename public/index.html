@@ -7,5 +7,14 @@
   </head>
   <body>
     Chat App
+
+    <form id="message-form">
+      <input name="message" type="text" placeholder="Message" />
+      <button>Send</button>
+    </form>
+
+    <!-- This is client side version of the socket.io library and due to this import, chat.js has access to some stuff which otherwise it would not have -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/chat.js"></script>
   </body>
 </html>
