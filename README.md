@@ -1,8 +1,8 @@
 # NodeJS Chat App
 
-## Description yet to be updated
+This project is part of my self-learning and developed using Node.js, Express.js and MongoDB.
 
-This project is part of my self-learning
+User can join the chat room by entering their name and room and talk to each other.
 
 The app is deployed on Heroku and can be accessed via https://aqarain-nodejs-chat-app.herokuapp.com/
 
